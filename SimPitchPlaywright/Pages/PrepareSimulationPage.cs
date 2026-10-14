@@ -12,6 +12,7 @@ public class PrepareSimulationPage : BasePage
     internal readonly ILocator Season2023_2024CheckBox;
     internal readonly ILocator Season2024_2025CheckBox;
     internal readonly ILocator Season2025_2026CheckBox;
+    internal readonly ILocator Season2026_2027CheckBox;
     internal readonly ILocator TitleInput;
     internal readonly ILocator LeagueInput;
     internal readonly ILocator LeagueRoundInput;
@@ -39,6 +40,7 @@ public class PrepareSimulationPage : BasePage
         Season2023_2024CheckBox = SeasonCheckBox("2023/2024");
         Season2024_2025CheckBox = SeasonCheckBox("2024/2025");
         Season2025_2026CheckBox = SeasonCheckBox("2025/2026");
+        Season2026_2027CheckBox = SeasonCheckBox("2026/2027");
         TitleInput = ByTestId("input-title");
         LeagueInput = ById("leagueId");
         LeagueRoundInput = ById("leagueRoundId");
@@ -146,12 +148,14 @@ public class PrepareSimulationPage : BasePage
         bool isSeason2022_2023 = false,
         bool isSeason2023_2024 = false,
         bool isSeason2024_2025 = false,
-        bool isSeason2025_2026 = true)
+        bool isSeason2025_2026 = false,
+        bool isSeason2026_2027 = true)
     {
         await AssertIfCheckedAsync(Season2022_2023CheckBox, isSeason2022_2023);
         await AssertIfCheckedAsync(Season2023_2024CheckBox, isSeason2023_2024);
         await AssertIfCheckedAsync(Season2024_2025CheckBox, isSeason2024_2025);
         await AssertIfCheckedAsync(Season2025_2026CheckBox, isSeason2025_2026);
+        await AssertIfCheckedAsync(Season2026_2027CheckBox, isSeason2026_2027);
     }
 
     internal Task AssertSelectedModelAsync(string value) => AssertIfCheckedAsync(ByTestId($"model-{value}"));
@@ -269,7 +273,7 @@ public class PrepareSimulationPage : BasePage
 
     internal async Task AssertPrepareSimulationByModelAsync(PrepareSimulationModel model)
     {
-        await AssertSelectedSeasonYearsAsync(model.isSeason2022_2023, model.isSeason2023_2024, model.isSeason2024_2025, model.isSeason2025_2026);
+        await AssertSelectedSeasonYearsAsync(model.isSeason2022_2023, model.isSeason2023_2024, model.isSeason2024_2025, model.isSeason2025_2026, model.isSeason2026_2027);
         await AssertLeagueAsync(model.League);
         await AssertNumberOfIterationsAsync(model.NumberOfIterations.ToString());
 

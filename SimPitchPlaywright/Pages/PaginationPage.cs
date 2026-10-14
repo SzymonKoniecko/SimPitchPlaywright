@@ -10,9 +10,10 @@ public class PaginationPage : BasePage
 
     public PaginationPage(IPage page) : base(page)
     {
-        PrevButton = ByTestId("prev-button");
-        NextButton = ByTestId("next-button");
-        TotalCount = ByTestId("total-count");
+        // Some pages render the pagination twice (above and below the list) - use the first one.
+        PrevButton = ByTestId("prev-button").First;
+        NextButton = ByTestId("next-button").First;
+        TotalCount = ByTestId("total-count").First;
     }
 
     internal async Task<int> GetTotalCountAsync()
@@ -53,7 +54,7 @@ public class PaginationPage : BasePage
 
     internal async Task SelectPageSizeAsync(string size)
     {
-        await SelectFromDropdownAsync(ByTestId("size-select"), size);
+        await SelectFromDropdownAsync(ByTestId("size-select").First, size);
         await Task.Delay(500);
     }
 }

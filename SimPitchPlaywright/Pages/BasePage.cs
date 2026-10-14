@@ -24,8 +24,14 @@ public abstract class BasePage
         ButtonSecondary = ByClass("button-secondary").First;
     }
 
-    /// <summary>Exact match on the <c>selenium-id</c> attribute (registered as the test-id attribute).</summary>
-    internal ILocator ByTestId(string seleniumId) => Page.GetByTestId(seleniumId);
+    /// <summary>Exact match on the <c>selenium-id</c> attribute.</summary>
+    /// <remarks>
+    /// Built as a plain CSS selector on purpose - Selectors.SetTestIdAttribute is global
+    /// and gets reset by other Playwright instances when tests run in parallel.
+    /// </remarks>
+    internal ILocator ByTestId(string seleniumId) => Page.Locator(BySeleniumIdSelector(seleniumId));
+
+    internal static string BySeleniumIdSelector(string seleniumId) => $"[selenium-id='{seleniumId}']";
 
     /// <summary>Partial match on the <c>selenium-id</c> attribute.</summary>
     internal ILocator ByAnyTestId(string seleniumId) => Page.Locator($"[selenium-id*='{seleniumId}']");

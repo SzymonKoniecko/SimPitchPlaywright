@@ -19,9 +19,6 @@ public abstract class BaseTest : PageTest
     [SetUp]
     public async Task BaseSetUp()
     {
-        // The frontend marks elements with a custom attribute instead of data-testid.
-        Playwright.Selectors.SetTestIdAttribute("selenium-id");
-
         BaseUrl = ConfigReader.GetBaseUrl();
         Page.SetDefaultTimeout(ConfigReader.GetDefaultTimeoutSec() * 1000);
         Page.SetDefaultNavigationTimeout(ConfigReader.GetNavigationTimeoutSec() * 1000);

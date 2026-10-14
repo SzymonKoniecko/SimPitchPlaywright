@@ -58,12 +58,19 @@ public class IterationResultPage : BasePage
 
     public async Task AssertRadarChartDisplayedAsync()
     {
-        // First open the first match round details to expose the match list
-        await Page.Locator(".match-details summary").First.ClickAsync();
+        // Not every round has team strengths (only played, simulated matches do),
+        // so pick the first round that actually contains them.
+        const string teamStrengthsSummary = "xpath=.//span[text()='Teams strengths']/..";
+        var round = Page.Locator("details.match-details")
+            .Filter(new() { Has = Page.Locator(teamStrengthsSummary) })
+            .First;
 
-        // Then open the team strengths details inside the first match
-        await Page.Locator("xpath=//span[text()='Teams strengths']/..").First.ClickAsync();
+        // First open the match round details to expose the match list
+        await round.Locator(":scope > summary").ClickAsync();
 
-        await Expect(TeamRadarDetails).ToBeVisibleAsync();
+        // Then open the team strengths details inside the first match of that round
+        await round.Locator(teamStrengthsSummary).First.ClickAsync();
+
+        await Expect(round.Locator(BySeleniumIdSelector("team-radar-details")).First).ToBeVisibleAsync();
     }
 }

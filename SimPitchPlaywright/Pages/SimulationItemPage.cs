@@ -67,6 +67,29 @@ public class SimulationItemPage : BasePage
             await SimulationStateValue.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = timeoutSeconds * 1000 });
             state = await GetSimulationStateAsync();
         }
+
+        await WaitForAllScoreboardsAsync(timeoutSeconds);
+    }
+
+    /// <summary>
+    /// Scoreboards are created asynchronously, so the state may already be "Completed" while some
+    /// iterations still have no scoreboard - the page then groups them into fewer blocks and does not
+    /// refresh on its own. Reload until the first page shows all of its iterations.
+    /// </summary>
+    private async Task WaitForAllScoreboardsAsync(int timeoutSeconds)
+    {
+        const int defaultPageSize = 10;
+        // e.g. "20 / 20 (100%)"
+        var totalIterations = int.Parse((await GetCompletedIterationsStringAsync()).Split('/')[1].Split('(')[0].Trim());
+        var expectedCount = Math.Min(defaultPageSize, totalIterations);
+
+        var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+        while (await Iterations.CountAsync() != expectedCount && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(1000);
+            await RefreshPageAsync();
+            await SimulationStateValue.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+        }
     }
 
     internal async Task RefreshPageAsync()
@@ -76,7 +99,16 @@ public class SimulationItemPage : BasePage
 
     internal async Task AssertIfDisplayedAsync(string simulationId)
     {
-        await Expect(Title).ToBeVisibleAsync(new() { Timeout = 30_000 });
+        // Right after creation (especially under load) the backend may not have persisted
+        // the simulation yet and responds with 404 - the page then shows an error and does
+        // not retry on its own, so reload it until the simulation shows up.
+        var deadline = DateTime.UtcNow.AddSeconds(30);
+        while (!await IsVisibleWithinAsync(Title, 5) && DateTime.UtcNow < deadline)
+        {
+            await RefreshPageAsync();
+        }
+
+        await Expect(Title).ToBeVisibleAsync();
         await AssertUrlContainsAsync(simulationId);
     }
 
