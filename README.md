@@ -44,35 +44,3 @@ BASEURL=http://localhost:5173 dotnet test
 
 # a single test
 dotnet test --filter "FullyQualifiedName~NavigationTests"
-```
-
-## Configuration
-
-| File | What it configures |
-| --- | --- |
-| `SimPitchPlaywright/.runsettings` | browser, headless, `Expect` timeout, number of parallel workers |
-| `SimPitchPlaywright/appsettings.json` | `baseUrl`, `apiBaseUrl`, timeouts, tracing mode (`off` / `on` / `retain-on-failure`) |
-
-Every key in `appsettings.json` can be overridden with an environment variable (`timeouts.default` → `TIMEOUTS_DEFAULT`).
-
-## Traces
-
-With `retain-on-failure` mode, a trace of each failed test is saved to
-`bin/Debug/net9.0/playwright-traces/*.zip` and attached to the test result. To view it:
-
-```bash
-SimPitchPlaywright/bin/Debug/net9.0/.playwright/node/darwin-arm64/node \
-  SimPitchPlaywright/bin/Debug/net9.0/.playwright/package/cli.js show-trace <file.zip>
-```
-
-## Structure
-
-```
-SimPitchPlaywright/
-├── Pages/      # Page Objects (BasePage, NavBarPage, MainPage, ...)
-├── Tests/      # tests (BaseTest : PageTest)
-└── Utils/      # helpers (ConfigReader)
-```
-
-Elements are located by the `selenium-id` attribute (shared with the Selenium tests) – `BaseTest`
-registers it as the test-id attribute, so `Page.GetByTestId("home-nav")` works.
