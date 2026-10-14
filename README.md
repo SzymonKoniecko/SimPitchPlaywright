@@ -69,10 +69,21 @@ SimPitchPlaywright/bin/Debug/net9.0/.playwright/node/darwin-arm64/node \
 
 ```
 SimPitchPlaywright/
-├── Pages/      # Page Objects (BasePage, NavBarPage, MainPage, ...)
+├── Models/     # test data models (PrepareSimulationModel, SimulationModelEnum)
+├── Pages/      # Page Objects (BasePage, NavBarPage, MainPage, PrepareSimulationPage, ...)
 ├── Tests/      # tests (BaseTest : PageTest)
-└── Utils/      # helpers (ConfigReader)
+└── Utils/      # helpers (ConfigReader, TextHelper, WaitHelper)
 ```
+
+The tests mirror the Selenium suite (`src/Selenium`) 1:1. Every test name has the `pw_` prefix,
+e.g. `pw_Nav_Should_Display_NavBar_Text`, so you can run them selectively:
+
+```bash
+dotnet test --filter "Name~pw_SimulationItem"
+```
+
+Simulations created by tests (`_createdSimulationIds`) are stopped through the API
+(`DELETE /api/engine/Simulation/stop/{id}`) in `BaseTest` teardown.
 
 Elements are located by the `selenium-id` attribute (shared with the Selenium tests) – `BaseTest`
 registers it as the test-id attribute, so `Page.GetByTestId("home-nav")` works.

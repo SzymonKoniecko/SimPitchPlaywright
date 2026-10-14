@@ -7,6 +7,7 @@ namespace SimPitchPlaywright.Tests;
 public abstract class BaseTest : PageTest
 {
     protected string BaseUrl = default!;
+    protected List<string> _createdSimulationIds = new();
 
     public override BrowserNewContextOptions ContextOptions() => new()
     {
@@ -40,6 +41,8 @@ public abstract class BaseTest : PageTest
     [TearDown]
     public async Task BaseTearDown()
     {
+        await StopCreatedSimulationsAsync();
+
         var tracingMode = ConfigReader.GetTracingMode();
         if (tracingMode == "off")
         {
@@ -59,6 +62,42 @@ public abstract class BaseTest : PageTest
         if (path is not null)
         {
             TestContext.AddTestAttachment(path, "Playwright trace (open with: playwright show-trace <file>)");
+        }
+    }
+
+    protected Task<IAPIRequestContext> NewApiContextAsync() =>
+        Playwright.APIRequest.NewContextAsync(new() { BaseURL = ConfigReader.GetApiBaseUrl() });
+
+    private async Task StopCreatedSimulationsAsync()
+    {
+        if (_createdSimulationIds.Count == 0)
+        {
+            return;
+        }
+
+        var api = await NewApiContextAsync();
+        try
+        {
+            foreach (var simId in _createdSimulationIds)
+            {
+                try
+                {
+                    var response = await api.DeleteAsync($"/api/engine/Simulation/stop/{simId}");
+                    if (!response.Ok)
+                    {
+                        TestContext.Out.WriteLine($"Failed to stop simulation {simId}. Status code: {response.Status}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TestContext.Out.WriteLine($"Exception while stopping simulation {simId}: {ex.Message}");
+                }
+            }
+        }
+        finally
+        {
+            _createdSimulationIds.Clear();
+            await api.DisposeAsync();
         }
     }
 }

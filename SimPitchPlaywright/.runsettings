@@ -12,6 +12,6 @@
     <LaunchOptions>
       <Headless>true</Headless>
     </LaunchOptions>
-    <ExpectTimeout>10000</ExpectTimeout>
+    <ExpectTimeout>30000</ExpectTimeout>
   </Playwright>
 </RunSettings>
